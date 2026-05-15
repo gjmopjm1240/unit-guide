@@ -16,14 +16,18 @@ type ToastState = { message: string; type: 'success' | 'error' } | null;
 const RECENT_KEY = 'unit-guide-recent-keywords';
 const FAVORITES_KEY = 'unit-guide-favorites';
 const EDITS_KEY = 'unit-guide-edits';
+const DEFAULT_CATEGORY = '전체';
+const DEFAULT_RETURN_PLACE = '전체';
+const DEFAULT_SORT: SortKey = '원본순';
+const DEFAULT_QUICK_FILTER: QuickFilterKey = 'all';
 
 export default function App() {
   const [allData, setAllData] = useState<UnitProcess[]>([]);
   const [search, setSearch] = useState('');
-  const [category, setCategory] = useState('전체');
-  const [quickFilter, setQuickFilter] = useState<QuickFilterKey>('all');
-  const [sortKey, setSortKey] = useState<SortKey>('원본순');
-  const [returnPlace, setReturnPlace] = useState('전체');
+  const [category, setCategory] = useState(DEFAULT_CATEGORY);
+  const [quickFilter, setQuickFilter] = useState<QuickFilterKey>(DEFAULT_QUICK_FILTER);
+  const [sortKey, setSortKey] = useState<SortKey>(DEFAULT_SORT);
+  const [returnPlace, setReturnPlace] = useState(DEFAULT_RETURN_PLACE);
   const [toast, setToast] = useState<ToastState>(null);
   const [showAdvanced, setShowAdvanced] = useState(false);
   const [error, setError] = useState('');
@@ -74,9 +78,9 @@ export default function App() {
   const filtered = useMemo(() => {
     const keyword = search.trim();
     const searched = dataWithEdits.filter((item) => {
-      const categoryMatch = category === '전체' || item.구분 === category;
+      const categoryMatch = category === DEFAULT_CATEGORY || item.구분 === category;
       if (!categoryMatch) return false;
-      const returnPlaceMatch = returnPlace === '전체' || item.반납지 === returnPlace;
+      const returnPlaceMatch = returnPlace === DEFAULT_RETURN_PLACE || item.반납지 === returnPlace;
       if (!returnPlaceMatch) return false;
       const quickMatch =
         quickFilter === 'all'
@@ -176,8 +180,15 @@ export default function App() {
             }}
           />
 
-          <FilterChips categories={categories} selected={category} onSelect={setCategory} />
-          <QuickFilters active={quickFilter} onChange={setQuickFilter} />
+          <div className="rounded-md border border-slate-200 bg-slate-50 p-3">
+            <p className="mb-2 text-xs font-semibold text-slate-500">구분 선택</p>
+            <FilterChips categories={categories} selected={category} onSelect={setCategory} />
+          </div>
+
+          <div className="rounded-md border border-slate-200 bg-white p-3">
+            <p className="mb-2 text-xs font-semibold text-slate-500">빠른 필터</p>
+            <QuickFilters active={quickFilter} onChange={setQuickFilter} />
+          </div>
 
           <button
             onClick={() => setShowAdvanced((prev) => !prev)}
@@ -193,9 +204,11 @@ export default function App() {
               className="h-10 min-w-0 w-full rounded-md border border-slate-300 bg-white px-3 text-sm"
               title={returnPlace}
             >
-              <option>반납지 전체</option>
+              <option value={DEFAULT_RETURN_PLACE}>반납지 전체</option>
               {returnPlaces.map((place) => (
-                <option key={place}>{place}</option>
+                <option key={place} value={place}>
+                  {place}
+                </option>
               ))}
             </select>
             <select
@@ -209,11 +222,11 @@ export default function App() {
             </select>
             <button
               onClick={() => {
-                setCategory('전체');
-                setQuickFilter('all');
-                setReturnPlace('전체');
+                setCategory(DEFAULT_CATEGORY);
+                setQuickFilter(DEFAULT_QUICK_FILTER);
+                setReturnPlace(DEFAULT_RETURN_PLACE);
                 setSearch('');
-                setSortKey('원본순');
+                setSortKey(DEFAULT_SORT);
               }}
               className="h-10 w-full rounded-md border border-slate-300 bg-white px-3 text-sm font-semibold text-slate-700"
             >
