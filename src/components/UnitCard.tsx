@@ -1,4 +1,5 @@
 import type { UnitProcess } from '../types/unit';
+import { classifyRequirement } from '../utils/rules';
 
 type UnitCardProps = {
   unit: UnitProcess;
@@ -8,10 +9,10 @@ type UnitCardProps = {
 };
 
 function badgeClass(value: string) {
-  const normalized = value.replace(/\s+/g, '').toLowerCase();
-  if (normalized.includes('확인')) return 'bg-amber-100 text-amber-700';
-  if (normalized.includes('필요') || normalized === 'o' || normalized.includes('등록')) return 'bg-blue-100 text-blue-700';
-  if (normalized.includes('불필요') || normalized === 'x') return 'bg-slate-200 text-slate-600';
+  const status = classifyRequirement(value);
+  if (status === 'checkNeeded') return 'bg-amber-100 text-amber-700';
+  if (status === 'required') return 'bg-blue-100 text-blue-700';
+  if (status === 'notRequired') return 'bg-slate-200 text-slate-600';
   return 'bg-slate-100 text-slate-700';
 }
 
