@@ -177,11 +177,12 @@ export default function App() {
           <FilterChips categories={categories} selected={category} onSelect={setCategory} />
           <QuickFilters active={quickFilter} onChange={setQuickFilter} />
 
-          <div className="flex flex-wrap gap-2">
+          <div className="grid grid-cols-2 gap-2 sm:grid-cols-5">
             <select
               value={returnPlace}
               onChange={(e) => setReturnPlace(e.target.value)}
-              className="h-11 rounded-xl border border-slate-300 px-3 text-sm"
+              className="h-11 min-w-0 w-full rounded-xl border border-slate-300 px-3 text-sm"
+              title={returnPlace}
             >
               <option>전체</option>
               {returnPlaces.map((place) => (
@@ -191,7 +192,7 @@ export default function App() {
             <select
               value={sortKey}
               onChange={(e) => setSortKey(e.target.value as SortKey)}
-              className="h-11 rounded-xl border border-slate-300 px-3 text-sm"
+              className="h-11 min-w-0 w-full rounded-xl border border-slate-300 px-3 text-sm"
             >
               <option>원본순</option>
               <option>구분순</option>
@@ -200,7 +201,7 @@ export default function App() {
             <select
               value={copyMode}
               onChange={(e) => setCopyMode(e.target.value as CopyMode)}
-              className="h-11 rounded-xl border border-slate-300 px-3 text-sm"
+              className="h-11 min-w-0 w-full rounded-xl border border-slate-300 px-3 text-sm"
             >
               <option>상세형</option>
               <option>요약형</option>
@@ -214,11 +215,11 @@ export default function App() {
                 setSortKey('원본순');
                 setCopyMode('상세형');
               }}
-              className="h-11 rounded-xl bg-slate-200 px-4 text-sm font-semibold text-slate-700"
+              className="h-11 w-full rounded-xl bg-slate-200 px-3 text-sm font-semibold text-slate-700"
             >
               필터 초기화
             </button>
-            <button onClick={refreshCsv} className="h-11 rounded-xl bg-brand-50 px-4 text-sm font-semibold text-brand-700">
+            <button onClick={refreshCsv} className="h-11 w-full rounded-xl bg-brand-50 px-3 text-sm font-semibold text-brand-700">
               데이터 새로고침
             </button>
           </div>
