@@ -50,7 +50,8 @@ export default function App() {
   async function refreshCsv() {
     setLoading(true);
     setError('');
-    const result = await loadUnitCsv('/유니트 최종.csv');
+    const csvPath = `${import.meta.env.BASE_URL}유니트 최종.csv`;
+    const result = await loadUnitCsv(csvPath);
     if (result.ok) setAllData(result.data);
     else setError(result.error);
     setLoading(false);
