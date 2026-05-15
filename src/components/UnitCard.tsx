@@ -62,28 +62,28 @@ export default function UnitCard({ unit, isFavorite, onToggleFavorite, onUpdate 
   };
 
   return (
-    <article className="rounded-2xl bg-white p-4 shadow-card">
-      <div className="mb-3 flex items-start justify-between gap-2">
+    <article className="rounded-lg border border-slate-200 bg-white p-4">
+      <div className="mb-3 flex items-start justify-between gap-2 border-b border-slate-100 pb-3">
         <div>
-          <p className="text-xs font-bold text-brand-700">{unit.구분}</p>
-          <h3 className="text-lg font-extrabold text-slate-900">{unit.유니트}</h3>
+          <p className="text-xs font-semibold text-slate-500">{unit.구분}</p>
+          <h3 className="text-lg font-bold text-slate-900">{unit.유니트}</h3>
         </div>
         <div className="flex gap-2">
           <button
             onClick={() => onToggleFavorite(unit.유니트)}
-            className={`rounded-lg px-3 py-2 text-xs font-semibold ${
-              isFavorite ? 'bg-amber-100 text-amber-700' : 'bg-slate-100 text-slate-700'
+            className={`rounded-md border px-2.5 py-1.5 text-xs font-semibold ${
+              isFavorite ? 'border-amber-300 bg-amber-50 text-amber-700' : 'border-slate-300 bg-white text-slate-700'
             }`}
           >
             {isFavorite ? '★ 즐겨찾기' : '☆ 즐겨찾기'}
           </button>
           {!editing ? (
-            <button onClick={() => setEditing(true)} className="rounded-lg bg-brand-700 px-3 py-2 text-xs font-semibold text-white">
+            <button onClick={() => setEditing(true)} className="rounded-md bg-brand-700 px-3 py-1.5 text-xs font-semibold text-white">
               수정
             </button>
           ) : (
             <>
-              <button onClick={saveEdit} className="rounded-lg bg-brand-700 px-3 py-2 text-xs font-semibold text-white">
+              <button onClick={saveEdit} className="rounded-md bg-brand-700 px-3 py-1.5 text-xs font-semibold text-white">
                 저장
               </button>
               <button
@@ -91,7 +91,7 @@ export default function UnitCard({ unit, isFavorite, onToggleFavorite, onUpdate 
                   syncFromUnit();
                   setEditing(false);
                 }}
-                className="rounded-lg bg-slate-200 px-3 py-2 text-xs font-semibold text-slate-700"
+                className="rounded-md border border-slate-300 bg-white px-3 py-1.5 text-xs font-semibold text-slate-700"
               >
                 취소
               </button>

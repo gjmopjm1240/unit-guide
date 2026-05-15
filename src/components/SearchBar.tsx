@@ -35,12 +35,12 @@ export default function SearchBar({ value, onChange, onSubmit, onClear, recentKe
             if (e.key === 'Enter' && !e.nativeEvent.isComposing) onSubmit();
           }}
           placeholder="예: SFP, AAU, 정류기"
-          className="h-12 flex-1 rounded-xl border border-slate-300 px-4 text-base outline-none ring-brand-600 focus:ring-2"
+          className="h-11 flex-1 rounded-md border border-slate-300 bg-white px-3 text-base outline-none ring-brand-600 focus:ring-1"
         />
-        <button type="submit" className="h-12 rounded-xl bg-brand-700 px-4 text-sm font-semibold text-white">
+        <button type="submit" className="h-11 rounded-md bg-brand-700 px-4 text-sm font-semibold text-white">
           검색
         </button>
-        <button type="button" onClick={onClear} className="h-12 rounded-xl bg-slate-200 px-4 text-sm font-semibold text-slate-700">
+        <button type="button" onClick={onClear} className="h-11 rounded-md border border-slate-300 bg-white px-4 text-sm font-semibold text-slate-700">
           초기화
         </button>
       </div>
@@ -50,7 +50,7 @@ export default function SearchBar({ value, onChange, onSubmit, onClear, recentKe
             <button
               key={keyword}
               onClick={() => onPickRecent(keyword)}
-              className="rounded-full bg-slate-100 px-3 py-1.5 text-xs font-semibold text-slate-700"
+              className="rounded-md border border-slate-300 bg-white px-2.5 py-1 text-xs font-semibold text-slate-600"
             >
               {keyword}
             </button>

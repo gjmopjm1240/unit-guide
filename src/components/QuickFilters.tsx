@@ -29,8 +29,8 @@ export default function QuickFilters({ active, onChange }: QuickFiltersProps) {
           <button
             key={option.key}
             onClick={() => onChange(option.key)}
-            className={`rounded-full px-3 py-2 text-xs font-bold ${
-              isActive ? 'bg-brand-800 text-white' : 'bg-slate-100 text-slate-700'
+            className={`rounded-md border px-3 py-1.5 text-xs font-semibold ${
+              isActive ? 'border-brand-700 bg-brand-50 text-brand-800' : 'border-slate-300 bg-white text-slate-700'
             }`}
           >
             {option.label}
