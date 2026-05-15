@@ -25,6 +25,7 @@ export default function App() {
   const [sortKey, setSortKey] = useState<SortKey>('원본순');
   const [returnPlace, setReturnPlace] = useState('전체');
   const [toast, setToast] = useState<ToastState>(null);
+  const [showAdvanced, setShowAdvanced] = useState(false);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(true);
   const [recentKeywords, setRecentKeywords] = useState<string[]>([]);
@@ -178,14 +179,21 @@ export default function App() {
           <FilterChips categories={categories} selected={category} onSelect={setCategory} />
           <QuickFilters active={quickFilter} onChange={setQuickFilter} />
 
-          <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
+          <button
+            onClick={() => setShowAdvanced((prev) => !prev)}
+            className="h-11 w-full rounded-xl bg-slate-100 px-3 text-sm font-semibold text-slate-700"
+          >
+            {showAdvanced ? '상세 필터 닫기' : '상세 필터 열기'}
+          </button>
+
+          <div className={`grid grid-cols-2 gap-2 sm:grid-cols-4 ${showAdvanced ? '' : 'hidden sm:grid'}`}>
             <select
               value={returnPlace}
               onChange={(e) => setReturnPlace(e.target.value)}
               className="h-11 min-w-0 w-full rounded-xl border border-slate-300 px-3 text-sm"
               title={returnPlace}
             >
-              <option>전체</option>
+              <option>반납지 전체</option>
               {returnPlaces.map((place) => (
                 <option key={place}>{place}</option>
               ))}
@@ -209,15 +217,15 @@ export default function App() {
               }}
               className="h-11 w-full rounded-xl bg-slate-200 px-3 text-sm font-semibold text-slate-700"
             >
-              필터 초기화
+              초기화
             </button>
             <button onClick={refreshCsv} className="h-11 w-full rounded-xl bg-brand-50 px-3 text-sm font-semibold text-brand-700">
-              데이터 새로고침
+              새로고침
             </button>
           </div>
         </section>
 
-        <section className="grid grid-cols-2 gap-2 sm:grid-cols-4">
+        <section className="hidden grid-cols-2 gap-2 sm:grid sm:grid-cols-4">
           <article className="rounded-xl bg-white p-3 shadow-card">
             <p className="text-xs font-semibold text-slate-500">전체 데이터</p>
             <p className="text-xl font-black text-brand-800">{allData.length}</p>
