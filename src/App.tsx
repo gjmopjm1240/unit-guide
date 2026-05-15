@@ -10,16 +10,12 @@ import { includesNormalized } from './utils/normalize';
 import { classifyRequirement } from './utils/rules';
 
 type SortKey = '원본순' | '구분순' | '유니트명순';
-type CopyMode = '상세형' | '요약형';
 
 type ToastState = { message: string; type: 'success' | 'error' } | null;
 
 const RECENT_KEY = 'unit-guide-recent-keywords';
 const FAVORITES_KEY = 'unit-guide-favorites';
-
-function formatCopyText(unit: UnitProcess) {
-  return `[유니트 불량처리 기준]\n구분: ${unit.구분}\n유니트: ${unit.유니트}\n반납지: ${unit.반납지}\n배송방법: ${unit.배송방법}\n비고: ${unit.비고}\nACTA: ${unit.ACTA}\n인수인계서: ${unit.인수인계서}\nBOX스티커: ${unit.BOX스티커}\nACTA 절차: ${unit['ACTA 절차']}`;
-}
+const EDITS_KEY = 'unit-guide-edits';
 
 export default function App() {
   const [allData, setAllData] = useState<UnitProcess[]>([]);
@@ -28,18 +24,20 @@ export default function App() {
   const [quickFilter, setQuickFilter] = useState<QuickFilterKey>('all');
   const [sortKey, setSortKey] = useState<SortKey>('원본순');
   const [returnPlace, setReturnPlace] = useState('전체');
-  const [copyMode, setCopyMode] = useState<CopyMode>('상세형');
   const [toast, setToast] = useState<ToastState>(null);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(true);
   const [recentKeywords, setRecentKeywords] = useState<string[]>([]);
   const [favorites, setFavorites] = useState<string[]>([]);
+  const [editedMap, setEditedMap] = useState<Record<string, Partial<UnitProcess>>>({});
 
   useEffect(() => {
     const recent = localStorage.getItem(RECENT_KEY);
     const fav = localStorage.getItem(FAVORITES_KEY);
+    const edits = localStorage.getItem(EDITS_KEY);
     if (recent) setRecentKeywords(JSON.parse(recent));
     if (fav) setFavorites(JSON.parse(fav));
+    if (edits) setEditedMap(JSON.parse(edits));
   }, []);
 
   useEffect(() => {
@@ -65,9 +63,16 @@ export default function App() {
     return [...new Set(allData.map((item) => item.구분).filter((item) => item !== '-'))];
   }, [allData]);
 
+  const dataWithEdits = useMemo(() => {
+    return allData.map((item) => {
+      const key = String(item.__index);
+      return editedMap[key] ? { ...item, ...editedMap[key] } : item;
+    });
+  }, [allData, editedMap]);
+
   const filtered = useMemo(() => {
     const keyword = search.trim();
-    const searched = allData.filter((item) => {
+    const searched = dataWithEdits.filter((item) => {
       const categoryMatch = category === '전체' || item.구분 === category;
       if (!categoryMatch) return false;
       const returnPlaceMatch = returnPlace === '전체' || item.반납지 === returnPlace;
@@ -102,18 +107,18 @@ export default function App() {
     if (sortKey === '원본순') return [...searched].sort((a, b) => a.__index - b.__index);
     if (sortKey === '구분순') return [...searched].sort((a, b) => a.구분.localeCompare(b.구분, 'ko'));
     return [...searched].sort((a, b) => a.유니트.localeCompare(b.유니트, 'ko'));
-  }, [allData, search, category, sortKey, quickFilter, favorites, returnPlace]);
+  }, [dataWithEdits, search, category, sortKey, quickFilter, favorites, returnPlace]);
 
   const stats = useMemo(() => {
-    const actaRequired = allData.filter((item) => classifyRequirement(item.ACTA) === 'required').length;
-    const actaCheck = allData.filter((item) => classifyRequirement(item.ACTA) === 'checkNeeded').length;
+    const actaRequired = dataWithEdits.filter((item) => classifyRequirement(item.ACTA) === 'required').length;
+    const actaCheck = dataWithEdits.filter((item) => classifyRequirement(item.ACTA) === 'checkNeeded').length;
     const favoriteCount = favorites.length;
     return { actaRequired, actaCheck, favoriteCount };
-  }, [allData, favorites]);
+  }, [dataWithEdits, favorites]);
 
   const returnPlaces = useMemo(() => {
-    return [...new Set(allData.map((item) => item.반납지).filter((item) => item !== '-'))];
-  }, [allData]);
+    return [...new Set(dataWithEdits.map((item) => item.반납지).filter((item) => item !== '-'))];
+  }, [dataWithEdits]);
 
   const pinnedFavorites = useMemo(() => {
     return filtered.filter((item) => favorites.includes(item.유니트));
@@ -130,17 +135,13 @@ export default function App() {
     localStorage.setItem(RECENT_KEY, JSON.stringify(next));
   }
 
-  async function handleCopy(unit: UnitProcess) {
-    const text =
-      copyMode === '상세형'
-        ? formatCopyText(unit)
-        : `[유니트 불량처리 기준]\n유니트: ${unit.유니트}\n반납지: ${unit.반납지}\n배송방법: ${unit.배송방법}\nACTA: ${unit.ACTA}\n인수인계서: ${unit.인수인계서}\nBOX스티커: ${unit.BOX스티커}`;
-    try {
-      await navigator.clipboard.writeText(text);
-      setToast({ message: '처리 기준이 복사되었습니다.', type: 'success' });
-    } catch {
-      setToast({ message: '복사에 실패했습니다. 다시 시도해주세요.', type: 'error' });
-    }
+  function updateUnit(index: number, next: Partial<UnitProcess>) {
+    const key = String(index);
+    const merged = { ...(editedMap[key] ?? {}), ...next };
+    const nextMap = { ...editedMap, [key]: merged };
+    setEditedMap(nextMap);
+    localStorage.setItem(EDITS_KEY, JSON.stringify(nextMap));
+    setToast({ message: '수정 내용이 저장되었습니다.', type: 'success' });
   }
 
   function toggleFavorite(unitName: string) {
@@ -177,7 +178,7 @@ export default function App() {
           <FilterChips categories={categories} selected={category} onSelect={setCategory} />
           <QuickFilters active={quickFilter} onChange={setQuickFilter} />
 
-          <div className="grid grid-cols-2 gap-2 sm:grid-cols-5">
+          <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
             <select
               value={returnPlace}
               onChange={(e) => setReturnPlace(e.target.value)}
@@ -198,14 +199,6 @@ export default function App() {
               <option>구분순</option>
               <option>유니트명순</option>
             </select>
-            <select
-              value={copyMode}
-              onChange={(e) => setCopyMode(e.target.value as CopyMode)}
-              className="h-11 min-w-0 w-full rounded-xl border border-slate-300 px-3 text-sm"
-            >
-              <option>상세형</option>
-              <option>요약형</option>
-            </select>
             <button
               onClick={() => {
                 setCategory('전체');
@@ -213,7 +206,6 @@ export default function App() {
                 setReturnPlace('전체');
                 setSearch('');
                 setSortKey('원본순');
-                setCopyMode('상세형');
               }}
               className="h-11 w-full rounded-xl bg-slate-200 px-3 text-sm font-semibold text-slate-700"
             >
@@ -261,7 +253,7 @@ export default function App() {
                 unit={unit}
                 isFavorite={favorites.includes(unit.유니트)}
                 onToggleFavorite={toggleFavorite}
-                onCopy={handleCopy}
+                onUpdate={updateUnit}
               />
             ))}
           </section>
@@ -274,7 +266,7 @@ export default function App() {
               unit={unit}
               isFavorite={favorites.includes(unit.유니트)}
               onToggleFavorite={toggleFavorite}
-              onCopy={handleCopy}
+              onUpdate={updateUnit}
             />
           ))}
         </section>
