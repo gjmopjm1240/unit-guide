@@ -155,14 +155,25 @@ export default function App() {
     localStorage.setItem(FAVORITES_KEY, JSON.stringify(next));
   }
 
+  function resetAllFilters() {
+    setCategory(DEFAULT_CATEGORY);
+    setQuickFilter(DEFAULT_QUICK_FILTER);
+    setReturnPlace(DEFAULT_RETURN_PLACE);
+    setSearch('');
+    setSortKey(DEFAULT_SORT);
+  }
+
   return (
     <div className="min-h-screen bg-slate-50 pb-20">
       <header className="sticky top-0 z-30 border-b border-slate-200 bg-white px-4 py-3">
-        <h1 className="text-2xl font-bold text-slate-900">유니트 불량처리 가이드</h1>
-        <p className="mt-1 text-sm text-slate-500">반납지 · 배송방법 · ACTA · 인수인계서 기준 조회</p>
-        <div className="mt-2 flex gap-3 text-sm font-semibold text-slate-700">
-          <span>전체 {allData.length}건</span>
-          <span>결과 {filtered.length}건</span>
+        <div className="mx-auto max-w-3xl rounded-md border border-slate-200 bg-slate-50 px-3 py-3">
+          <p className="text-[11px] font-semibold uppercase tracking-wide text-slate-500">SK O&amp;S FIELD GUIDE</p>
+          <h1 className="mt-1 text-2xl font-bold leading-tight text-slate-900">유니트 불량처리 가이드</h1>
+          <p className="mt-1 text-sm text-slate-500">반납지 · 배송방법 · ACTA · 인수인계서 기준 조회</p>
+          <div className="mt-2 flex gap-2 text-xs font-semibold text-slate-700">
+            <span className="rounded bg-white px-2 py-1 border border-slate-200">전체 {allData.length}건</span>
+            <span className="rounded bg-white px-2 py-1 border border-slate-200">결과 {filtered.length}건</span>
+          </div>
         </div>
       </header>
 
@@ -172,7 +183,7 @@ export default function App() {
             value={search}
             onChange={setSearch}
             onSubmit={() => saveRecent(search)}
-            onClear={() => setSearch('')}
+            onClear={resetAllFilters}
             recentKeywords={recentKeywords}
             onPickRecent={(value) => {
               setSearch(value);
@@ -221,13 +232,7 @@ export default function App() {
               <option>유니트명순</option>
             </select>
             <button
-              onClick={() => {
-                setCategory(DEFAULT_CATEGORY);
-                setQuickFilter(DEFAULT_QUICK_FILTER);
-                setReturnPlace(DEFAULT_RETURN_PLACE);
-                setSearch('');
-                setSortKey(DEFAULT_SORT);
-              }}
+              onClick={resetAllFilters}
               className="h-10 w-full rounded-md border border-slate-300 bg-white px-3 text-sm font-semibold text-slate-700"
             >
               초기화
